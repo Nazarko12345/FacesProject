@@ -51,38 +51,33 @@ class Net(nn.Module):
 
     def forward(self, x):
 
-        # Stage 1
         x1 = self.bn1(F.relu(self.conv1(x)))
         x1 = self.bn11(F.relu(self.conv11(x1)))
 
         x1p, id1 = F.max_pool2d(x1,kernel_size=2, stride=2,return_indices=True)
-        # Stage 2
         x2 = self.bn2(F.relu(self.conv2(x1p)))
         x2 = self.bn22(F.relu(self.conv22(x2)))
 
         x2p, id2 = F.max_pool2d(x2,kernel_size=2, stride=2,return_indices=True)
 
-        # Stage 3
         x3 = self.bn3(F.relu(self.conv3(x2p)))
         x3p, id3 = F.max_pool2d(x3,kernel_size=2, stride=2,return_indices=True)
 
-        # Stage 4
         x4 = self.bn4(F.relu(self.dropout1(self.conv4(x3p))))
-        #4d
+        # encode
+        
         x4d = self.bn4d(F.relu(self.conv4d(x4)))
 
-        # Stage 3d
+    
         x3d = F.max_unpool2d(x4d, id3, kernel_size=2, stride=2,output_size=x3.size())
         x3d = self.bn3d(F.relu(self.conv3d(x3d)))
         x3d = self.bn3dd(F.relu(self.conv3dd(x3d)))
-
-        # Stage 2d
+        
         x2d = F.max_unpool2d(x3d, id2, kernel_size=2, stride=2,output_size=x2.size())
         x2d = self.bn2d(F.relu(self.conv2d(x2d)))
         x2d = self.bn2dd(F.relu(self.conv2dd(x2d)))
 
-        # Stage 1d
         x1d = F.max_unpool2d(x2d, id1, kernel_size=2, stride=2,output_size=x1.size())
         x1d = F.tanh(self.conv1d(x1d))
         return x1d
-    
+       
